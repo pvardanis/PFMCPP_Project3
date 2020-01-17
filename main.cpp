@@ -30,9 +30,8 @@ Video:  Chapter 2 Part 5
 /*
  example:
  */
-
+#include <cmath>
 #include <bits/stdc++.h> 
-#define _USE_MATH_DEFINES
 #include <iostream>
 
 struct CarWash            //1) a U.D.T. with a random number of member variables
@@ -255,16 +254,19 @@ struct University
     double costPerYear = 10000.; // happens also in UK, nothing is free here dude
     std::vector<std::string> modules, weeklySchedule;
 
-    double buyEquipment(double cost, bool hasEquipment)
+    void buyEquipment(double cost, bool hasEquipment)
     {
         if (hasEquipment)
         {
             std::cout << "Maybe we won't need this!" << std::endl;
         }
-        else
+        else 
         {
-            if (totalBudget > cost) totalBudget -= cost;            
-        }
+            if (totalBudget > cost)
+            {
+                totalBudget -= cost;
+            }            
+        }      
     }
     void receiveParcels();
     void makeExams(std::vector<std::string> listOfCourses);
