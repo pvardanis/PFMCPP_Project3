@@ -181,7 +181,7 @@ struct Wardrobe
 /*
  7)
  */
-struct simCity
+struct simCity FIXME types should start with a Capital Letter
 {
     double totalAmount = 250000000.;
     double unoccupiedArea = 150000.; // square meters
