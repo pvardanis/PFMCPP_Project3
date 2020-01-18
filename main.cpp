@@ -188,7 +188,10 @@ struct BusStation
 
 void BusStation::checkTickets()
 {
-    if (numberOfTickets != numOfPassengers) std::cout << "Everyone out!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
+    if (numberOfTickets != numOfPassengers) 
+    {
+        std::cout << "Everyone out!" << std::endl; 
+    }     
 }
 
 /*
@@ -206,7 +209,10 @@ struct Kitchen
 
 void Kitchen::makeSalad()
 {
-    if (!hasTomatoes) std::cout << "You can't make any salad!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
+    if (!hasTomatoes) 
+    {
+        std::cout << "You can't make any salad!" << std::endl; 
+    } 
 }
 /*
  6)
@@ -247,7 +253,14 @@ struct SimCity // fell asleep
 
 void SimCity::Factory::interviewPeople(int totalQualifications, int threshold)
 {
-    (totalQualifications > threshold) ? std::cout << "You got hired!" << std::endl : std::cout << "Unfortunately we won't proceed with your application" << std::endl; FIXME make this more readable
+    if (totalQualifications > threshold) 
+    {
+        std::cout << "You got hired!" << std::endl;
+    }
+    else
+    {
+        std::cout << "Unfortunately we won't proceed with your application" << std::endl;
+    }
 }
 
 void SimCity::dontGiveAShitAboutHomelessPeople()
@@ -270,13 +283,22 @@ struct Garage
 
 void Garage::fixCar(bool paymentInFront, double cost)
 {
-    if (paymentInFront) std::cout << "Your car will be ready in 3 days! The cost is: " << cost << "." << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
-    else std::cout << "Gimme " << cost << " euros now you punk!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
+    if (paymentInFront) 
+    {
+        std::cout << "Your car will be ready in 3 days! The cost is: " << cost << "." << std::endl; 
+    }
+    else 
+    {
+        std::cout << "Gimme " << cost << " euros now you punk!" << std::endl; 
+    } 
 }
 
 void Garage::makeBooking()
 {
-    if (maxCapacity >= numOfCars) std::cout << "Can't fix your car dude!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
+    if (maxCapacity >= numOfCars) 
+    {
+        std::cout << "Can't fix your car dude!" << std::endl; 
+    }
     else
     {
         std::cout << "Please leave your number." << std::endl; 
@@ -299,8 +321,14 @@ struct MusicStudio
 
 void MusicStudio::positionSpeakers(double angleLeftEar, double angleRightEar)
 {
-    if (angleLeftEar != 45. && angleRightEar != 45.) std::cout << "You need to reposition the speakers!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
-    else std::cout << "Everything set!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
+    if (angleLeftEar != 45. && angleRightEar != 45.) 
+    {
+        std::cout << "You need to reposition the speakers!" << std::endl; 
+    }
+    else
+    {
+        std::cout << "Everything set!" << std::endl; 
+    }  
 }
 
 void MusicStudio::mixSong()
@@ -326,8 +354,21 @@ struct University
 
 void University::buyEquipment(double cost, bool hasEquipment)
 {
-    if (hasEquipment) std::cout << "Maybe we won't need this!" << std::endl; FIXME break this habit of putting if blocks on the same line if the expression is long. 
-    else totalBudget = (totalBudget > cost) ? (totalBudget - cost) : totalBudget; FIXME break this habit of putting if blocks on the same line if the expression is long. 
+    if (hasEquipment) 
+    {
+        std::cout << "Maybe we won't need this!" << std::endl; 
+    }
+    else 
+    {
+        if (totalBudget >= cost)
+        {
+            totalBudget -= cost;
+        } 
+        else
+        {
+            std::cout << "No money!" << std::endl;
+        }
+    }
 }
 
 void University::receiveParcels()
