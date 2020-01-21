@@ -137,9 +137,9 @@ void ShoppingMall::Cosmetics::greetCustomer()
 void ShoppingMall::superviseArea()
 {
     if (numVisitors < 500) 
-        std::cout << "Everything all right!" << std::endl;
+        std::cout << "Everything all right! You don't have to worry for just " << numVisitors << "!" << std::endl;
     else if (numCameras < 50) 
-        std::cout << "We need more cameras!" << std::endl;         
+        std::cout << "We need more cameras! " << numCameras << " are not enough!" << std::endl;         
 }
 
 /*
@@ -197,7 +197,8 @@ void BusStation::checkTickets()
 {
     if (numTickets != numPassengers) 
     {
-        std::cout << "Everyone out!" << std::endl; 
+        int diff = (numTickets >= numPassengers) ? (numTickets - numPassengers) : (numPassengers - numTickets);
+        std::cout << "Everyone out! " << diff << " passengers didn't buy a ticket!" <<std::endl; 
     }     
 }
 
@@ -264,28 +265,32 @@ struct SimCity // fell asleep
 {
     double totalAmount = 250000000.;
     double unoccupiedArea = 150000.; // square meters
+    std::string message;
 
+    SimCity(std::string hatefulMessage) : message(hatefulMessage) {}
     struct Factory
     {
         double totalInvestment; 
         double totalArea;
+        int threshold;
         
-        Factory(double investment, double area) :
+        Factory(double investment, double area, int minimumQualifications) :
         totalInvestment(investment),
-        totalArea(area)
+        totalArea(area),
+        threshold(minimumQualifications)
         { 
             std::cout << "The construction of a new -" << area << " m^2- factory worth " << investment << " million dollars has been announced! Great news!" << std::endl;
         }
 
-        void interviewPeople(int totalQualifications, int threshold);
+        void interviewPeople(int myQualifications);
     };
 
     void dontGiveAShitAboutHomelessPeople(); // happens in Brighton, UK (you heard it here first!)
 };
 
-void SimCity::Factory::interviewPeople(int totalQualifications, int threshold)
+void SimCity::Factory::interviewPeople(int myQualifications)
 {
-    if (totalQualifications > threshold) 
+    if (myQualifications > threshold) 
     {
         std::cout << "You got hired!" << std::endl;
     }
@@ -297,7 +302,7 @@ void SimCity::Factory::interviewPeople(int totalQualifications, int threshold)
 
 void SimCity::dontGiveAShitAboutHomelessPeople()
 {
-    std::cout << "Good luck if you are unemployed, punk!";
+    std::cout << message << std::endl;
 }
 /*
  8)
@@ -462,7 +467,7 @@ int main()
     myCircle.computeArea();
 
     // example 4
-    BusStation station1(50, 49);
+    BusStation station1(45, 50);
     station1.checkTickets();
     BusStation station2;
     station2.checkTickets(); // in the default constructor it's all good
@@ -480,7 +485,11 @@ int main()
     myPants2.select();
 
     // example 7
-    SimCity::Factory myFactory(25.5, 1550.);
+    SimCity::Factory myFactory(25.5, 1550., 5);
+    myFactory.interviewPeople(6); // hired
+    myFactory.interviewPeople(3); // rejected
+    SimCity myCity("F*** off!");
+    myCity.dontGiveAShitAboutHomelessPeople();
 
     // example 8
     Garage myGarage1(25, 50, 157.5);
