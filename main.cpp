@@ -78,16 +78,20 @@ int main()
 struct AudioPlugins 
 {
     int numPlugins;
-    std::vector<std::string> differentTypes; // I don't know
-    // why .push_back("something") gets me an error
+    std::vector<std::string> differentTypes; 
+
+    std::vector<double> inputSamples;
+    bool playSound = true;
+    bool button  = true;
+
     AudioPlugins(int howManyPlugins) 
     {
         numPlugins = howManyPlugins;
         std::cout << "You selected " << numPlugins << " plugins." << std::endl;
     }
+    
     struct MultiBandCompressor
     {
-        bool playSound = false;
         double attackTime = 0.;
         double releaseTime = 0.;
         double compressRatio;
@@ -96,23 +100,33 @@ struct AudioPlugins
         {
             compressRatio = ratio;
             std::cout << "You've set ratio to be: " << compressRatio << std::endl;
-        }
+        }        
     };
 
-    std::vector<double> processSample(MultiBandCompressor compressor, std::vector<double> inputSamples);
+    std::vector<double> processSample(MultiBandCompressor compressor, std::vector<double> input);
 };
 
-std::vector<double> AudioPlugins::processSample(MultiBandCompressor compressor, std::vector<double> inputSamples)
+std::vector<double> AudioPlugins::processSample(MultiBandCompressor compressor, std::vector<double> input)
 {
+    inputSamples = {};
+
+    for(size_t i=0; i < input.size(); ++i)
+    {
+        inputSamples.push_back(input[i]);
+    }
+
     compressor.attackTime = 0.25;
     compressor.releaseTime = 0.1;
-    if (!compressor.playSound)
-    {
-        std::fill(inputSamples.begin(), inputSamples.end(), 0.);    
-        return inputSamples;
-    }
+
     for (auto i = inputSamples.begin(); i != inputSamples.end(); ++i)
-    {
+    {   
+        if (button == false || *i >= 10.)
+        {
+            playSound = false;
+            std::fill(inputSamples.begin(), inputSamples.end(), 0.); 
+            return inputSamples;
+        }
+
         *i *= (compressor.attackTime - compressor.releaseTime); // I think it's a pointer and with *i you change the value that it points to
         *i /= compressor.compressRatio; // random
     }
@@ -123,6 +137,18 @@ std::vector<double> AudioPlugins::processSample(MultiBandCompressor compressor, 
 /*
  2)
  */
+
+struct Visitor
+{
+    std::string name;
+    int age;
+
+    Visitor(std::string myName, int myAge) :
+    name(myName),
+    age(myAge)
+    {}
+};
+
 struct ShoppingMall
 {
     int numVisitors;
@@ -150,6 +176,7 @@ struct ShoppingMall
     };
 
     void superviseArea();
+    void performCheck(std::vector<Visitor> customerDetails);
 };
 
 double ShoppingMall::MensClothing::applyDiscount()
@@ -170,6 +197,36 @@ void ShoppingMall::superviseArea()
         std::cout << "We need more cameras! " << numCameras << " are not enough!" << std::endl;         
 }
 
+void ShoppingMall::performCheck(std::vector<Visitor> customerDetails)
+{
+    std::vector<Visitor> entered;
+    for( auto it = customerDetails.begin(); it != customerDetails.end(); ++it )
+    {
+        std::cout << "Could you please give me your details? ";
+        auto age = (*it).age;
+        auto name = (*it).name;
+        std::cout << "My name is " << name  << " and I'm " << age  << " years old." << std::endl;
+       
+        if (age < 18)
+        {
+            std::cout << "Sorry sir! You are not allowed to enter!" << std::endl;
+        } 
+        else
+        {
+            std::cout << "Come in!" << std::endl;
+            numVisitors += 1;
+            entered.push_back(*it);
+        }
+    }
+
+    std::cout << "List of people who entered: " << std::endl;
+    for ( auto it = entered.begin(); it != entered.end(); ++it )
+    {
+        auto name = (*it).name;
+        std::cout << name << std::endl;
+    }
+}
+
 /*
  3)
  */
@@ -178,17 +235,21 @@ struct Shape
     bool hasAngles;
     std::string color;
 
+    Shape() {}
     Shape(std::string yourColor) 
     {
         color = yourColor;
         std::cout << color << " shape constructed." << std::endl;
     }
+
     struct Circle
     {
         double radius;
         Circle(double yourRadius) {radius = yourRadius;}
         double computeArea();
     };
+
+    Circle* generateRandomCircle(double minValue, double maxValue);
 };
 
 double Shape::Circle::computeArea()
@@ -198,9 +259,33 @@ double Shape::Circle::computeArea()
     std::cout << "Circle of " << area << " m^2." << std::endl; 
     return area;
 }
+
+Shape::Circle* Shape::generateRandomCircle(double minValue, double maxValue)
+{
+    double randomRadius = fmod((double)rand(), (maxValue - minValue + 0.001));
+
+    while (randomRadius < (minValue + maxValue) / 2) // doesn't really make sense
+    {
+        double temp = fmod((double)rand(), (maxValue - minValue + 0.001));
+        randomRadius = temp;
+    }
+
+    Circle* randomCircle = new Circle(randomRadius); // let's try this for the first time
+    
+    return randomCircle;
+}
+
 /*
  4)
  */
+
+
+struct Passenger
+{
+    bool hasTicket;
+    Passenger(bool ticket) : hasTicket(ticket) {}
+};
+
 struct BusStation 
 {
     int numPassengers;
@@ -217,17 +302,37 @@ struct BusStation
     numTickets(tickets)
     {}
 
-    void stopBus();
-    void checkTickets();
+    void stopBus(bool passengersInStation, std::vector<Passenger> passegersWaiting);
+    bool checkTickets();
 };
 
-void BusStation::checkTickets()
+bool BusStation::checkTickets()
 {
-    if (numTickets != numPassengers) 
+    return (numTickets == numPassengers) ? true : false;
+}
+
+void BusStation::stopBus(bool passengersInStation, std::vector<Passenger> passengersWaiting)
+{
+    if (passengersInStation)
+    {   
+        for ( auto it = passengersWaiting.begin(); it != passengersWaiting.end(); ++it )
+        {
+            bool ticketStatus = (*it).hasTicket;
+            
+            if (ticketStatus)
+            {
+                std::cout << "You have to pay for your ticket!" << std::endl;
+            }        
+        }
+        if (!this->checkTickets())
+        {
+            std::cout << "Everyone out!" << std::endl;
+        }
+    }
+    else
     {
-        int diff = (numTickets >= numPassengers) ? (numTickets - numPassengers) : (numPassengers - numTickets);
-        std::cout << "Everyone out! " << diff << " passengers didn't buy a ticket!" <<std::endl; 
-    }     
+        std::cout << "Move on!" << std::endl;
+    }
 }
 
 /*
@@ -237,28 +342,50 @@ struct Kitchen
 {
     int numOfKnifes = 5;
     bool fridgeIsEmpty = true; // always true :(
-    bool hasTomatoes;
-    std::string recipe;
+    std::vector<std::string> recipe;
+    std::vector<std::string> stock;
 
-    Kitchen() : hasTomatoes(false) {}
-    Kitchen(bool tomatoes, std::string myRecipe) : 
-    hasTomatoes(tomatoes),
-    recipe(myRecipe) 
+    Kitchen() {}
+    Kitchen(std::vector<std::string> myStock, std::vector<std::string> myRecipe) : 
+    recipe(myRecipe),
+    stock(myStock) 
     {}
 
     void makeSalad();
+    bool fillBowl(bool hasIt, std::string item);
 };
 
 void Kitchen::makeSalad()
 {
-    if (!hasTomatoes) 
+    for (auto it = recipe.begin(); it != recipe.end(); ++it)
     {
-        std::cout << "You can't make any salad!" << std::endl; 
-    } 
-    else
-    {
-        std::cout << "Time to make " << recipe << "!" << std::endl;
+        std::string ingredient = *it;
+        bool filled = false;
+        for (auto it = stock.begin(); it != stock.end(); ++it) // this it overwrites the "it" above in this scope
+        {
+            std::string inStock = *it;
+            if (inStock == ingredient)
+            {
+                filled = fillBowl(true, ingredient);
+                break;
+            }
+        }
+        if (!filled)
+        {
+            std::cout << "You can't make this salad!" << std::endl;
+            break;
+        }
     }
+}
+
+bool Kitchen::fillBowl(bool hasIt, std::string item)
+{
+    if (hasIt)
+    {
+        std::cout << "Filled with: " << item << std::endl;
+        return true;
+    }
+    return false;
 }
 /*
  6)
@@ -269,22 +396,60 @@ struct Wardrobe
     {
         std::string color, size, type, brand;
 
-        Pants() : size("medium"), type("capri") {}
+        Pants() {}
         Pants(std::string mySize, std::string myType) : 
         size(mySize),
         type(myType)
-        { }
-
-        void select();
+        { }        
     };
-    Pants myPants; // only UDT member variable
+
+    std::vector<Pants> totalPants; // only UDT member variable
+    Pants wearPants;
+
+    Wardrobe(std::vector<Pants> allPants, Pants myPants) :
+    totalPants(allPants),
+    wearPants(myPants)
+    {} // only UDT member variable
+
+    bool isDirty(bool foundStain);
+    void wash(const Pants& dirtyPants);
+    void select();
 };
 
-void Wardrobe::Pants::select()
+void Wardrobe::select()
 {
-    std::cout << "What color would you like: " << std::endl;
-    std::cin >> color;
-    std::cout << "You will wear " << type << " of size " << size << " and color " << color << "." << std::endl;
+    bool foundIt = false;
+    for (auto it = totalPants.begin(); it != totalPants.end(); ++it) // this it overwrites the "it" above in this scope
+    {
+        std::string pantsSize = it->size;
+        std::string pantsType = it->type;
+
+        if (pantsSize == wearPants.size && pantsType == wearPants.type)
+        {
+            std::cout << "Found what you are looking for!" <<   std::endl;
+            foundIt = true;
+            if (isDirty(true)) // always true, because well that's what happens in reality
+            {
+                std::cout << "But it's dirty!" << std::endl;
+                wash(wearPants);
+                break; 
+            }
+        }        
+    }
+    if (!foundIt)
+    {
+        std::cout << "No clothes for you baby!" << std::endl;
+    }
+}
+
+bool Wardrobe::isDirty(bool foundStain)
+{
+    return foundStain; // could do more
+}
+
+void Wardrobe::wash(const Pants& dirtyPants)
+{
+    std::cout << "Washed it!" << std::endl; // could do more
 }
 /*
  7)
@@ -480,39 +645,89 @@ void makeExams(std::vector<std::string> listOfCourses)
 #include <iostream>
 int main()
 {
-    Example::main();
+    //Example::main();
     // example 1
+    std::cout << "\nExample 1: " << std::endl;
     AudioPlugins audioPlugins(5);
     AudioPlugins::MultiBandCompressor mbc(3.5);
+    audioPlugins.processSample(mbc, {1.5, 4.53, 9.49, 9.5, 5.105});
+    std:: cout << "Value under 10.0, playSound: " << audioPlugins.playSound << std::endl; // all values below 10.0, returns 1
+    audioPlugins.processSample(mbc, {1.5, 12.467, 9.49, 9.5, 5.105});
+    std:: cout << "Value over 10.0, playSound: " << audioPlugins.playSound << std::endl; // all values below 10.0, returns 0
+    audioPlugins.button = false;
+    audioPlugins.processSample(mbc, {1.5, 4.53, 9.49, 9.5, 5.105}); // all below 10.
+    std:: cout << "Value under 10.0 and button = false, playSound: " << audioPlugins.playSound << std:: endl; // all values below 10.0, returns 0 
 
     // example 2
+    std::cout << "\nExample 2: " << std::endl;
     ShoppingMall attica(600, 30);
     attica.superviseArea();
+    Visitor v1("Panos", 25);
+    Visitor v2("George", 17);
+    Visitor v3("Matkat", 18);
+    Visitor v4("Chris", 13);
+    attica.performCheck({v1, v2, v3, v4});
+    // std::cout << "List of people who entered: " << peopleEntered << std::endl;
     
     // example 3
-    Shape myShape("Red"); // I guess I can't pass this to the nested class Circle
+    std::cout << "\nExample 3: " << std::endl;
+    Shape myShape("Red"); 
     Shape::Circle myCircle(5);
     myCircle.computeArea();
 
+    Shape myRandomShape;
+    Shape* randomShape = &myRandomShape;
+    Shape::Circle* myRandomCircle = randomShape->generateRandomCircle(1., 10.); // random circle, radius always > (maxValue + minValue) / 2
+    std::cout << "Generated a random circle with radius = " << myRandomCircle->radius << " and area of " << myRandomCircle->computeArea() << std::endl;
+
     // example 4
-    BusStation station1(45, 50);
+    std::cout << "\nExample 4" << std::endl;
+    BusStation station1(45, 50); // the driver will notice
     station1.checkTickets();
     BusStation station2;
     station2.checkTickets(); // in the default constructor it's all good
+    BusStation station3;
+    Passenger p1(true);
+    Passenger p2(false);
+    Passenger p3(true);
+    station3.stopBus(true, {p1, p2, p3});
 
     // example 5
-    Kitchen myKitchen1;
+    std::cout << "\nExample 5: " << std::endl;
+    // Kitchen myKitchen1;
+    // myKitchen1.makeSalad();
+    // Kitchen myKitchen2(true, "Charred onion & tomato salad");
+    // myKitchen2.makeSalad();
+    std::vector<std::string> stock = {"onion", "tomatoes", "peppers", "feta", "potatoes"};
+    std::cout << "Let's make salad1 !" << std::endl;
+    std::vector<std::string> recipe1 = {"onion", "tomatoes", "feta"};
+    Kitchen myKitchen1(stock, recipe1);
     myKitchen1.makeSalad();
-    Kitchen myKitchen2(true, "Charred onion & tomato salad");
+    std::cout << "Let's make salad2 !" << std::endl;
+    std::vector<std::string> recipe2 = {"peppers", "cheese", "pepperoni"};
+    Kitchen myKitchen2(stock, recipe2);
     myKitchen2.makeSalad();
 
     // example 6
-    Wardrobe::Pants myPants1;
-    myPants1.select();
-    Wardrobe::Pants myPants2("large", "jeans");
-    myPants2.select();
+    std::cout << "\nExample 6: " << std::endl;
+    // Wardrobe::Pants myPants1;
+    // myPants1.select();
+    // Wardrobe::Pants myPants2("large", "jeans");
+    // myPants2.select();
+    Wardrobe::Pants pants1("medium", "trousers");
+    Wardrobe::Pants pants2("medium", "jeans");
+    Wardrobe::Pants pants3("small", "jeans");
+    Wardrobe::Pants pants4("large", "cargo");
+    std::vector<Wardrobe::Pants> pants{pants1, pants2, pants3, pants4};
+    Wardrobe::Pants wannaWear1("large", "cargo");
+    Wardrobe::Pants wannaWear2("large", "shorts");
+    Wardrobe myWardrobe1(pants, wannaWear1);
+    myWardrobe1.select();
+    Wardrobe myWardrobe2(pants, wannaWear2);
+    myWardrobe2.select();
 
     // example 7
+    std::cout << "\nExample 7: " << std::endl;
     SimCity::Factory myFactory(25.5, 1550., 5);
     myFactory.interviewPeople(6); // hired
     myFactory.interviewPeople(3); // rejected
@@ -520,6 +735,7 @@ int main()
     myCity.dontGiveAShitAboutHomelessPeople();
 
     // example 8
+    std::cout << "\nExample 8: " << std::endl;
     Garage myGarage1(25, 50, 157.5);
     bool availability1 = myGarage1.makeBooking();
     myGarage1.fixCar(availability1, true);
@@ -529,10 +745,12 @@ int main()
     myGarage2.fixCar(availability2, false);
 
     // example 9
+    std::cout << "\nExample 9: " << std::endl;
     MusicStudio myMusicStudio(125.0, true);
     myMusicStudio.mixSong();
 
     // example 10
+    std::cout << "\nExample 10: " << std::endl;
     University myUniversity1(1000000., 150);
     myUniversity1.buyEquipment(500000, true);
     myUniversity1.receiveParcels();
