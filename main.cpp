@@ -262,11 +262,11 @@ double Shape::Circle::computeArea()
 
 Shape::Circle* Shape::generateRandomCircle(double minValue, double maxValue)
 {
-    double randomRadius = fmod((double)rand(), (maxValue - minValue + 0.001));
+    double randomRadius = fmod(double(rand()), (maxValue - minValue + 0.001));
 
     while (randomRadius < (minValue + maxValue) / 2) // doesn't really make sense
     {
-        double temp = fmod((double)rand(), (maxValue - minValue + 0.001));
+        double temp = fmod(double(rand()), (maxValue - minValue + 0.001));
         randomRadius = temp;
     }
 
@@ -372,7 +372,7 @@ void Kitchen::makeSalad()
         }
         if (!filled)
         {
-            std::cout << "You can't make this salad!" << std::endl;
+            std::cout << ingredient << " not found! You can't make this salad!" << std::endl;
             break;
         }
     }
@@ -449,11 +449,22 @@ bool Wardrobe::isDirty(bool foundStain)
 
 void Wardrobe::wash(const Pants& dirtyPants)
 {
-    std::cout << "Washed it!" << std::endl; // could do more
+    std::cout << "Washed " << dirtyPants.type << "!" << std::endl; // could do more
 }
 /*
  7)
  */
+
+struct Employee
+{
+    std::vector<std::string> qualifications;
+    int age;
+
+    Employee(std::vector<std::string> myQualifications, int myAge) :
+    qualifications(myQualifications),
+    age(myAge)
+    {}
+};
 struct SimCity // fell asleep
 {
     double totalAmount = 250000000.;
@@ -465,9 +476,13 @@ struct SimCity // fell asleep
     {
         double totalInvestment; 
         double totalArea;
-        int threshold;
+        std::vector<std::string> threshold;
         
-        Factory(double investment, double area, int minimumQualifications) :
+        Factory(std::vector<std::string> minimumQualifications) :
+        threshold(minimumQualifications)
+        {}
+        
+        Factory(double investment, double area, std::vector<std::string> minimumQualifications) :
         totalInvestment(investment),
         totalArea(area),
         threshold(minimumQualifications)
@@ -475,21 +490,40 @@ struct SimCity // fell asleep
             std::cout << "The construction of a new -" << area << " m^2- factory worth " << investment << " million dollars has been announced! Great news!" << std::endl;
         }
 
-        void interviewPeople(int myQualifications);
+        void interviewPeople(std::vector<Employee> candidates);
     };
 
     void dontGiveAShitAboutHomelessPeople(); // happens in Brighton, UK (you heard it here first!)
 };
 
-void SimCity::Factory::interviewPeople(int myQualifications)
+void SimCity::Factory::interviewPeople(std::vector<Employee> candidates)
 {
-    if (myQualifications > threshold) 
-    {
-        std::cout << "You got hired!" << std::endl;
-    }
-    else
-    {
-        std::cout << "Unfortunately we won't proceed with your application." << std::endl;
+    for (auto it = candidates.begin(); it != candidates.end(); ++it)
+    {   
+        int numQualified = 0;
+        int age = it->age;
+        std::vector<std::string> qualifications = it-> qualifications;   
+
+        for (size_t it = 0; it < qualifications.size(); ++it)
+        {
+            std::string skill = qualifications[it];
+            for (size_t it = 0; it < threshold.size(); ++it)
+            {
+                if (skill == threshold[it])
+                {
+                    numQualified++;
+                    break;
+                }    
+            }            
+        }
+        if (numQualified == int(threshold.size()) && age >= 18) 
+        {
+            std::cout << "You're hired!" << std::endl;
+        }
+        else
+        {
+            std::cout << "Unfortunately we won't proceed with your application." << std::endl;
+        }
     }
 }
 
@@ -500,6 +534,15 @@ void SimCity::dontGiveAShitAboutHomelessPeople()
 /*
  8)
  */
+
+struct Repair // more general
+{
+    std::vector<std::string> toolsNeeded;
+    void unscrew(std::string tool);
+
+    Repair(std::vector<std::string> tools) : toolsNeeded(tools) {}
+};
+
 struct Garage
 {
     int numCars;
@@ -512,17 +555,32 @@ struct Garage
     costPerCar(cost)
     {}
 
-    void fixCar(bool isAvailable, bool paymentInFront);
+    void fixCar(bool isAvailable, std::vector<std::string> tools, bool paymentInFront);
     bool makeBooking();
+    void searchTool(std::string tool, bool foundIt);
 };
 
-void Garage::fixCar(bool isAvailable, bool paymentInFront)
+void Garage::fixCar(bool isAvailable, std::vector<std::string> tools, bool paymentInFront)
 {
     if (isAvailable)
     {
         if (paymentInFront) 
         {
             std::cout << "Your car will be ready in 3 days! The cost is: " << costPerCar << " euros." << std::endl; 
+            Repair repair(tools);
+
+            size_t i = 0;
+            bool foundIt = false;
+            while (i < repair.toolsNeeded.size())
+            {
+                if (i % 2 == 0) 
+                {
+                    foundIt = true;
+                }
+                searchTool(repair.toolsNeeded[i], foundIt);
+                foundIt = false;
+                i++;
+            }
         }
         else 
         {
@@ -533,6 +591,11 @@ void Garage::fixCar(bool isAvailable, bool paymentInFront)
     {
         std::cout << "I really can't do this!" << std::endl;
     }
+}
+
+void Garage::searchTool(std::string tool, bool foundIt)
+{
+    if(foundIt) std::cout << "Found " << tool << "!" << std::endl;
 }
 
 bool Garage::makeBooking()
@@ -553,6 +616,22 @@ bool Garage::makeBooking()
 /*
  9)
  */
+
+struct Song
+{
+    std::string title;
+    std::string genre;
+    double volume;
+    double frequencyRange;
+
+    Song(std::string songTitle, std::string songGenre, double songVolume, double songFrequencyRange) :
+    title(songTitle),
+    genre(songGenre),
+    volume(songVolume),
+    frequencyRange(songFrequencyRange)
+    {}
+};
+
 struct MusicStudio
 {
     int numOfMicrophones, cables;
@@ -565,7 +644,7 @@ struct MusicStudio
     {}
 
     void positionSpeakers(double angleLeftEar, double angleRightEar);
-    void mixSong();
+    void mixSong(std::vector<Song> songs);
 };
 
 void MusicStudio::positionSpeakers(double angleLeftEar, double angleRightEar)
@@ -580,14 +659,42 @@ void MusicStudio::positionSpeakers(double angleLeftEar, double angleRightEar)
     }  
 }
 
-void MusicStudio::mixSong()
+void MusicStudio::mixSong(std::vector<Song> songs)
 {
-    std::cout << "The total cost is: " << costPerMix << "." << std::endl;
+    std::cout << "The total cost is: " << costPerMix * int(songs.size()) << "." << std::endl;
+    for (auto it = songs.begin(); it < songs.end(); ++it)
+    {
+        
+        double volume = it->volume;
+        double frequencyRange = it->frequencyRange;
+        std::string title = it->title;
+        std::string genre = it->genre;
+
+        volume -= 2.5;
+        frequencyRange -= 500;
+
+        std::cout << "Song title: " << title << std::endl;
+        std::cout << "Song genre: " << genre << std::endl;
+        std::cout << "Volume now is: " << volume << ", frequence range is: " << frequencyRange << "Hz." << std::endl;
+    }
 }
 
 /*
  10)
  */
+
+struct Parcel
+{
+    std::vector<double> dimensions; // height, width, depth
+    std::string type;
+
+    Parcel() {}
+    Parcel(std::vector<double> myDimensions, std::string myType) : 
+    dimensions(myDimensions),
+    type(myType)
+    {}
+};
+
 struct University
 {
     int numOfStudents = 1500;
@@ -602,7 +709,8 @@ struct University
     { }
 
     void buyEquipment(double cost, bool hasEquipment);
-    void receiveParcels();
+    void receiveParcels(std::vector<Parcel> parcels);
+    bool checkParcel(Parcel *parcel, std::vector<double> dimensionsThreshold, std::string forbiddenType);
     void makeExams(std::vector<std::string> listOfCourses);
 };
 
@@ -625,14 +733,44 @@ void University::buyEquipment(double cost, bool hasEquipment)
     }
 }
 
-void University::receiveParcels()
+void University::receiveParcels(std::vector<Parcel> parcels)
 {
-    int arrived;
-    std::cout << "How many parcels do you have for us?" << std::endl;
-    std::cin >> arrived;
+    int arrived = int(parcels.size());
+    std::cout << "We already have " << numParcels << " parcels in total." << std::endl;
+    std::cout << arrived << " parcels arrived!" << std::endl;
+
+    for (auto it = parcels.begin(); it != parcels.end(); ++it)
+    {
+        Parcel *parcel = std::addressof(*it);
+        if (!checkParcel(parcel, {2.5, 1.5, 0.5}, "fragile")) arrived -= 1;
+        else std::cout << "Accepted!" << std::endl;
+    }
     numParcels += arrived;
-    std::cout << "We have " << numParcels << " today." << std::endl;
+    std::cout << "We have " << numParcels << " parcels in total." << std::endl;
 }
+
+bool University::checkParcel(Parcel *parcel, std::vector<double> dimensionsThreshold, std::string forbiddenType)
+{
+    std::vector<double> dimensions = parcel->dimensions;
+    std::string type = parcel->type;
+
+    if (type == forbiddenType) 
+    {
+        std::cout << "Sorry, we can't receive this item! It's " << type << "!" << std::endl;
+        return false;
+    }
+    
+    for (size_t d = 0; d < dimensions.size(); ++d)
+    {
+        if (dimensions[d] > dimensionsThreshold[d])
+        {
+            std::cout << "Sorry, we can't receive this item! Exceeds allowed dimensions!" << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 
 void makeExams(std::vector<std::string> listOfCourses)
 {
@@ -684,8 +822,10 @@ int main()
     std::cout << "\nExample 4" << std::endl;
     BusStation station1(45, 50); // the driver will notice
     station1.checkTickets();
+
     BusStation station2;
     station2.checkTickets(); // in the default constructor it's all good
+
     BusStation station3;
     Passenger p1(true);
     Passenger p2(false);
@@ -701,10 +841,12 @@ int main()
     std::vector<std::string> stock = {"onion", "tomatoes", "peppers", "feta", "potatoes"};
     std::cout << "Let's make salad1 !" << std::endl;
     std::vector<std::string> recipe1 = {"onion", "tomatoes", "feta"};
+
     Kitchen myKitchen1(stock, recipe1);
     myKitchen1.makeSalad();
     std::cout << "Let's make salad2 !" << std::endl;
     std::vector<std::string> recipe2 = {"peppers", "cheese", "pepperoni"};
+
     Kitchen myKitchen2(stock, recipe2);
     myKitchen2.makeSalad();
 
@@ -721,43 +863,75 @@ int main()
     std::vector<Wardrobe::Pants> pants{pants1, pants2, pants3, pants4};
     Wardrobe::Pants wannaWear1("large", "cargo");
     Wardrobe::Pants wannaWear2("large", "shorts");
+
     Wardrobe myWardrobe1(pants, wannaWear1);
     myWardrobe1.select();
+
     Wardrobe myWardrobe2(pants, wannaWear2);
     myWardrobe2.select();
 
     // example 7
     std::cout << "\nExample 7: " << std::endl;
-    SimCity::Factory myFactory(25.5, 1550., 5);
-    myFactory.interviewPeople(6); // hired
-    myFactory.interviewPeople(3); // rejected
-    SimCity myCity("F*** off!");
-    myCity.dontGiveAShitAboutHomelessPeople();
+    // SimCity::Factory myFactory(25.5, 1550., 5);
+    // myFactory.interviewPeople(6); // hired
+    // myFactory.interviewPeople(3); // rejected
+    // SimCity myCity("F*** off!");
+    // myCity.dontGiveAShitAboutHomelessPeople();
+    std::vector<std::string> minimumQualifications = {"C++", "Python", "Digital Signal Processing"};
+    std::vector<std::string> myQualifications = {"Python", "Digital Signal Processing"};
+    std::vector<std::string> matkatQualifications = {"Python", "Digital Signal Processing", "C++", "VST development"};
+    std::vector<std::string> randomKidQualifications = {"Python", "Digital Signal Processing", "C++", "Hacking", "Machine Learning"};    
+    Employee me(myQualifications, 25);
+    Employee matkatmusic(matkatQualifications, 35);
+    Employee randomKid(randomKidQualifications, 16);
+    std::vector<Employee> candidates = {me, matkatmusic, randomKid}; 
+    SimCity::Factory myFactory(minimumQualifications);
+    myFactory.interviewPeople(candidates);
+
 
     // example 8
     std::cout << "\nExample 8: " << std::endl;
-    Garage myGarage1(25, 50, 157.5);
-    bool availability1 = myGarage1.makeBooking();
-    myGarage1.fixCar(availability1, true);
+    // Garage myGarage1(25, 50, 157.5);
+    // bool availability1 = myGarage1.makeBooking();
+    // // myGarage1.fixCar(availability1, true);
 
-    Garage myGarage2(50, 50, 168.5);
-    bool availability2 = myGarage2.makeBooking();
-    myGarage2.fixCar(availability2, false);
+    // Garage myGarage2(50, 50, 168.5);
+    // bool availability2 = myGarage2.makeBooking();
+    // myGarage2.fixCar(availability2, false);
+
+    Garage myGarage3(10, 30, 157.5);
+    std::vector<std::string> tools = {"screwdriver", "wrench", "pliers", "paintbrush", "saw", "drill"};
+    bool availability3 = myGarage3.makeBooking();
+    myGarage3.fixCar(availability3, tools, true);
+
 
     // example 9
     std::cout << "\nExample 9: " << std::endl;
+    // MusicStudio myMusicStudio(125.0, true);
+    // myMusicStudio.mixSong();
+    Song s1("Welcome to the Jungle", "Rock", -5, 2500);
+    Song s2("Fear", "Hip hop", -2.5, 1500);
+    std::vector<Song> songs = {s1, s2};
     MusicStudio myMusicStudio(125.0, true);
-    myMusicStudio.mixSong();
+    myMusicStudio.mixSong(songs);
 
     // example 10
     std::cout << "\nExample 10: " << std::endl;
-    University myUniversity1(1000000., 150);
-    myUniversity1.buyEquipment(500000, true);
-    myUniversity1.receiveParcels();
+    // University myUniversity1(1000000., 150);
+    // myUniversity1.buyEquipment(500000, true);
+    // myUniversity1.receiveParcels();
 
-    University myUniversity2(1000000., 50);
-    myUniversity2.buyEquipment(2000000, false);
-    myUniversity2.receiveParcels();
+    // University myUniversity2(1000000., 50);
+    // myUniversity2.buyEquipment(2000000, false);
+    // myUniversity2.receiveParcels();
+
+    Parcel parcel1({1.0, 1.0, 0.5}, "plastic");
+    Parcel parcel2({0.5, 0.5, 0.5}, "fragile");
+    Parcel parcel3({3.0, 1.0, 0.5}, "plastic");
+
+    std::vector<Parcel> parcels = {parcel1, parcel2, parcel3};
+    University myUniversity(1000000., 50);
+    myUniversity.receiveParcels(parcels);
 
     std::cout << "good to go!" << std::endl;
 
