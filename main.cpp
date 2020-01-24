@@ -357,13 +357,13 @@ struct Kitchen
 
 void Kitchen::makeSalad()
 {
-    for (auto it = recipe.begin(); it != recipe.end(); ++it)
+    for (auto it1 = recipe.begin(); it1 != recipe.end(); ++it1)
     {
-        std::string ingredient = *it;
+        std::string ingredient = *it1;
         bool filled = false;
-        for (auto it = stock.begin(); it != stock.end(); ++it) // this it overwrites the "it" above in this scope
+        for (auto it2 = stock.begin(); it2 != stock.end(); ++it2) // this it overwrites the "it" above in this scope
         {
-            std::string inStock = *it;
+            std::string inStock = *it2;
             if (inStock == ingredient)
             {
                 filled = fillBowl(true, ingredient);
@@ -498,18 +498,18 @@ struct SimCity // fell asleep
 
 void SimCity::Factory::interviewPeople(std::vector<Employee> candidates)
 {
-    for (auto it = candidates.begin(); it != candidates.end(); ++it)
+    for (auto it1 = candidates.begin(); it1 != candidates.end(); ++it1)
     {   
         int numQualified = 0;
-        int age = it->age;
-        std::vector<std::string> qualifications = it-> qualifications;   
+        int age = it1->age;
+        std::vector<std::string> qualifications = it1-> qualifications;   
 
-        for (size_t it = 0; it < qualifications.size(); ++it)
+        for (size_t it2 = 0; it2 < qualifications.size(); ++it2)
         {
-            std::string skill = qualifications[it];
-            for (size_t it = 0; it < threshold.size(); ++it)
+            std::string skill = qualifications[it2];
+            for (size_t it3 = 0; it3 < threshold.size(); ++it3)
             {
-                if (skill == threshold[it])
+                if (skill == threshold[it3])
                 {
                     numQualified++;
                     break;
