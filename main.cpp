@@ -270,7 +270,7 @@ Shape::Circle* Shape::generateRandomCircle(double minValue, double maxValue)
         randomRadius = temp;
     }
 
-    FIXME let's not try this until you know how to NOT LEAK MEMORY
+    //FIXME let's not try this until you know how to NOT LEAK MEMORY
     Circle* randomCircle = new Circle(randomRadius); // let's try this for the first time
     
     return randomCircle;
@@ -818,6 +818,7 @@ int main()
     Shape* randomShape = &myRandomShape;
     Shape::Circle* myRandomCircle = randomShape->generateRandomCircle(1., 10.); // random circle, radius always > (maxValue + minValue) / 2
     std::cout << "Generated a random circle with radius = " << myRandomCircle->radius << " and area of " << myRandomCircle->computeArea() << std::endl;
+    delete myRandomCircle; // what about this one?
 
     // example 4
     std::cout << "\nExample 4" << std::endl;
