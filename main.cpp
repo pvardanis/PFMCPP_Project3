@@ -270,6 +270,7 @@ Shape::Circle* Shape::generateRandomCircle(double minValue, double maxValue)
         randomRadius = temp;
     }
 
+    FIXME let's not try this until you know how to NOT LEAK MEMORY
     Circle* randomCircle = new Circle(randomRadius); // let's try this for the first time
     
     return randomCircle;
