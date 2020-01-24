@@ -249,7 +249,7 @@ struct Shape
         double computeArea();
     };
 
-    Circle* generateRandomCircle(double minValue, double maxValue);
+    Circle generateRandomCircle(double minValue, double maxValue);
 };
 
 double Shape::Circle::computeArea()
@@ -260,7 +260,7 @@ double Shape::Circle::computeArea()
     return area;
 }
 
-Shape::Circle* Shape::generateRandomCircle(double minValue, double maxValue)
+Shape::Circle Shape::generateRandomCircle(double minValue, double maxValue)
 {
     double randomRadius = fmod(double(rand()), (maxValue - minValue + 0.001));
 
@@ -271,9 +271,9 @@ Shape::Circle* Shape::generateRandomCircle(double minValue, double maxValue)
     }
 
     //FIXME let's not try this until you know how to NOT LEAK MEMORY
-    Circle* randomCircle = new Circle(randomRadius); // let's try this for the first time
+    return Circle(randomRadius); // let's try this for the first time
     
-    return randomCircle;
+    // return randomCircle;
 }
 
 /*
@@ -815,10 +815,10 @@ int main()
     myCircle.computeArea();
 
     Shape myRandomShape;
-    Shape* randomShape = &myRandomShape;
-    Shape::Circle* myRandomCircle = randomShape->generateRandomCircle(1., 10.); // random circle, radius always > (maxValue + minValue) / 2
-    std::cout << "Generated a random circle with radius = " << myRandomCircle->radius << " and area of " << myRandomCircle->computeArea() << std::endl;
-    delete myRandomCircle; // what about this one?
+    Shape* randomShape = &myRandomShape; 
+    Shape::Circle myRandomCircle = randomShape->generateRandomCircle(1., 10.); // random circle, radius always > (maxValue + minValue) / 2
+    std::cout << "Generated a random circle with radius = " << myRandomCircle.radius << " and area of " << myRandomCircle.computeArea() << std::endl;
+    // delete myRandomCircle; // what about this one?
 
     // example 4
     std::cout << "\nExample 4" << std::endl;
